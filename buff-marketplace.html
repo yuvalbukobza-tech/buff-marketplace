@@ -9724,20 +9724,28 @@ function App() {
       return [];
     }
   });
-  const [usersReady, setUsersReady] = useState(false);
+  const [usersReady, setUsersReady] = useState(() => {
+    try {
+      const u = JSON.parse(localStorage.getItem("buff_appUsers"));
+      return !!(u && u.length > 0);
+    } catch {
+      return false;
+    }
+  });
   useEffect(() => {
     localStorage.setItem("buff_appUsers", JSON.stringify(appUsers));
   }, [appUsers]);
 
   // Pre-auth: load appUsers from Sheets so login works on any device
   useEffect(() => {
+    const t = setTimeout(() => setUsersReady(true), 5000);
     fetch(SCRIPT_URL).then(r => r.json()).then(data => {
       if (data.appUsers && data.appUsers.length > 0) {
         setAppUsers(data.appUsers);
         localStorage.setItem("buff_appUsers", JSON.stringify(data.appUsers));
       }
       setUsersReady(true);
-    }).catch(() => setUsersReady(true));
+    }).catch(() => setUsersReady(true)).finally(() => clearTimeout(t));
   }, []);
   function handleLogin(e) {
     e.preventDefault();
