@@ -3831,4 +3831,8 @@ const { useState, useMemo, useEffect, useRef, useCallback } = React;
 with open(OUT_HTML, 'w', encoding='utf-8') as f:
     f.write(html)
 
-print(f"Done — {len(html):,} chars written to {OUT_HTML}")
+INDEX_HTML = 'c:/Users/Roman Averin/Desktop/ClaudeCodeTest/index.html'
+with open(INDEX_HTML, 'w', encoding='utf-8') as f:
+    f.write(html)
+
+print(f"Done — {len(html):,} chars written to {OUT_HTML} + index.html")
