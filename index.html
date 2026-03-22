@@ -10067,7 +10067,8 @@ function App() {
   const USERS = [{
     user: "yuvalbukobza",
     pass: "1205",
-    display: "Admin"
+    display: "Yuval Bukobza",
+    isAdmin: true
   }, {
     user: "itaiguzik",
     pass: "123456789",
@@ -10130,7 +10131,7 @@ function App() {
     if (match) {
       const appU = (appUsers || []).find(u => u.username === loginU);
       const fullName = appU ? (appU.firstName + " " + appU.lastName).trim() || match.display : match.display;
-      const adminFlag = match.display === "Admin";
+      const adminFlag = !!match.isAdmin;
       sessionStorage.setItem("buff_auth", "1");
       sessionStorage.setItem("buff_display", fullName);
       sessionStorage.setItem("buff_admin", adminFlag ? "1" : "0");
