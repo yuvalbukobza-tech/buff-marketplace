@@ -3216,7 +3216,7 @@ function FinanceRequests({ products, allocs, appUsers, transactions, setTransact
                   const toList=(appUsers||[]).filter(u=>u.defaultRecipient&&u.email).map(u=>u.email).join(",");
                   if(toList){
                     const NLs=String.fromCharCode(10);
-                    const sbody=["Transaction status has been updated.","","Vendor: "+detailTx.vendor,"Transaction ID: #"+detailTx.id,"Amount: "+usd(detailTx.totalAmount),"New Status: "+ns.charAt(0).toUpperCase()+ns.slice(1),"Updated by: "+displayName,"Date: "+new Date().toISOString().slice(0,10)].join(NLs);
+                    const sbody=["Transaction status has been updated.","","Vendor: "+detailTx.vendor,"Transaction ID: #"+detailTx.id,"Amount: "+usd(detailTx.totalAmount),"New Status: "+ns.charAt(0).toUpperCase()+ns.slice(1),"Updated by: "+displayName+(senderEmail?" <"+senderEmail+">":""),"Date: "+new Date().toISOString().slice(0,10),"","Note: Reply to this email to reach the person who made this update."].join(NLs);
                     const ssubj="Status Update: Finance Request #"+detailTx.id+" - "+detailTx.vendor+" - "+ns.charAt(0).toUpperCase()+ns.slice(1);
                     const sparams=new URLSearchParams({action:"sendEmail",to:toList,subject:ssubj,body:sbody,senderName:displayName,senderEmail});
                     fetch(SCRIPT_URL+"?"+sparams.toString()).catch(()=>{});
