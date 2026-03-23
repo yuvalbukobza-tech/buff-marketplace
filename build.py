@@ -3201,14 +3201,17 @@ function FinanceRequests({ products, allocs, appUsers, transactions, setTransact
             const maxVal = Math.max(...monthlyData.map(d=>d.total),1);
             return (
               <div>
-                <div style={{display:"flex",alignItems:"flex-end",gap:4,height:100,marginBottom:4}}>
+                <div style={{display:"flex",alignItems:"flex-end",gap:4,height:130,marginBottom:4}}>
                   {monthlyData.map(d=>(
-                    <div key={d.key} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",height:"100%",justifyContent:"flex-end"}}>
+                    <div key={d.key} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",height:"100%",justifyContent:"flex-end",gap:2}}>
+                      {d.total>0&&<div style={{fontSize:8,color:G,fontWeight:700,textAlign:"center",whiteSpace:"nowrap",maxWidth:"100%",overflow:"hidden",textOverflow:"ellipsis"}}>
+                        {"$"+Math.round(d.total).toLocaleString()}
+                      </div>}
                       <div title={`$${d.total.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}`}
                         style={{width:"100%",background:d.total>0?"rgba(200,255,0,0.55)":"rgba(255,255,255,0.04)",
                           border:`1px solid ${d.total>0?"rgba(200,255,0,0.8)":"#1a1a1a"}`,
                           borderRadius:"3px 3px 0 0",
-                          height:d.total>0?`${Math.max((d.total/maxVal)*80,4)}px`:"4px",
+                          height:d.total>0?`${Math.max((d.total/maxVal)*90,6)}px`:"4px",
                           cursor:"default",minHeight:"4px"}}/>
                     </div>
                   ))}
