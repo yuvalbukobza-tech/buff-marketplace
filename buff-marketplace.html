@@ -12335,7 +12335,40 @@ function App() {
     style: {
       color: "#f87171"
     }
-  }, "Save failed")))), /*#__PURE__*/React.createElement("div", {
+  }, "Save failed")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      const data = {
+        products,
+        allocs,
+        orders,
+        transactions,
+        raffles,
+        raffleCountries,
+        budgetExtras,
+        appUsers,
+        exportedAt: new Date().toISOString()
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: "application/json"
+      });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "buffops-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+      a.click();
+    },
+    style: {
+      marginLeft: 12,
+      background: "#1a1a1a",
+      border: "1px solid #2a2a2a",
+      borderRadius: 7,
+      color: "#888",
+      padding: "5px 12px",
+      fontSize: 11,
+      fontWeight: 700,
+      cursor: "pointer",
+      fontFamily: "inherit"
+    }
+  }, "\u2B07 Export Backup"))), /*#__PURE__*/React.createElement("div", {
     style: {
       padding: 36
     }
