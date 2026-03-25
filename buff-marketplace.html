@@ -1074,7 +1074,8 @@ function ProductForm({
     bpRegular: "",
     bpPremium: "",
     discountPct: 0,
-    demandLevel: "Medium"
+    demandLevel: "Medium",
+    redashName: ""
   };
   const [f, setF] = useState(initial || blank);
   const set = (k, v) => setF(p => ({
@@ -1170,7 +1171,18 @@ function ProductForm({
     onChange: e => set("demandLevel", e.target.value)
   }, DEMAND_LEVELS.map(d => /*#__PURE__*/React.createElement("option", {
     key: d
-  }, d))))), f.priceToBuffLocal && /*#__PURE__*/React.createElement("div", {
+  }, d)))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      gridColumn: "1 / -1"
+    }
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: "Redash Product Name (optional)",
+    hint: "Exact product name as it appears in Redash (e.g. '$10 Riot Access Code'). Used to match Redash data to this product."
+  }, /*#__PURE__*/React.createElement(Input, {
+    value: f.redashName || "",
+    onChange: e => set("redashName", e.target.value),
+    placeholder: "e.g. $10 Riot Access Code US"
+  })))), f.priceToBuffLocal && /*#__PURE__*/React.createElement("div", {
     style: {
       background: "rgba(200,255,0,0.04)",
       border: "1px solid rgba(200,255,0,0.15)",
