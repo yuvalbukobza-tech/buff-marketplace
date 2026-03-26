@@ -6873,7 +6873,21 @@ function AnalyticsTab({
 // ── DASHBOARD TAB ─────────────────────────────────────────────────────────────
 
 function priceFromName(name) {
-  const m = /\$(\d+(?:\.\d+)?)/.exec(name || "");
+  const s = name || "";
+  // Local dollar variants: CA$3, AU$3, NZ$3, MX$3 → convert to USD
+  const mLocal = /\b(CA|AU|NZ|MX)\$(\d+(?:\.\d+)?)/.exec(s);
+  if (mLocal) {
+    const cmap = { CA: "CAD", AU: "AUD", NZ: "NZD", MX: "MXN" };
+    return parseFloat(mLocal[2]) * (FX[cmap[mLocal[1]]] || 1);
+  }
+  // Symbol currencies: £ → GBP, € → EUR, ¥ → JPY
+  const mSym = /(£|€|¥)(\d+(?:\.\d+)?)/.exec(s);
+  if (mSym) {
+    const smap = { "£": "GBP", "€": "EUR", "¥": "JPY" };
+    return parseFloat(mSym[2]) * (FX[smap[mSym[1]]] || 1);
+  }
+  // Default: plain $ = USD
+  const m = /\$(\d+(?:\.\d+)?)/.exec(s);
   return m ? parseFloat(m[1]) : 0;
 }
 function DashboardTab({
