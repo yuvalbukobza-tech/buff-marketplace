@@ -2226,7 +2226,6 @@ function ProductsTab({
   const allCountries = [...COUNTRIES, ...(extraCountries || [])];
   const [subView, setSubView] = useState("mp");
   const [modal, setModal] = useState(null);
-  const [globalModal, setGlobalModal] = useState(false);
   const [filterCat, setFilterCat] = useState("All");
   const [filterBrand, setFilterBrand] = useState("All");
   const [filterDemand, setFilterDemand] = useState("All");
@@ -2311,27 +2310,8 @@ function ProductsTab({
       whiteSpace: "nowrap"
     }
   }, s);
-  const globalRows = allocs["GLOBAL"] || [];
-  const globalActiveCount = globalRows.filter(r => r.active !== false && products.find(p => p.id === r.productId)).length;
+  const globalAllocRows = allocs["GLOBAL"] || [];
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: { background: "#080c0c", border: "1px solid rgba(56,189,248,0.2)", borderRadius: 12, padding: "14px 20px", marginBottom: 20, display: "flex", alignItems: "center", justifyContent: "space-between" }
-  }, /*#__PURE__*/React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 12 } }, /*#__PURE__*/React.createElement("span", { style: { fontWeight: 800, color: "#38bdf8", background: "rgba(56,189,248,0.1)", border: "1px solid rgba(56,189,248,0.3)", padding: "2px 10px", borderRadius: 4, fontSize: 11, letterSpacing: "0.05em" } }, "GLOBAL"), /*#__PURE__*/React.createElement("span", { style: { fontSize: 13, color: "#444" } }, globalActiveCount > 0 ? `${globalActiveCount} product${globalActiveCount !== 1 ? "s" : ""} allocated` : "No products allocated")), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setGlobalModal(true),
-    style: { background: "#1a1a1a", border: "1px solid #2a2a2a", color: "#38bdf8", borderRadius: 8, padding: "7px 16px", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6 }
-  }, /*#__PURE__*/React.createElement(Icon.edit, null), " Edit Global Allocations")), globalModal && /*#__PURE__*/React.createElement(Modal, {
-    title: "Allocations \u2014 GLOBAL",
-    onClose: () => setGlobalModal(false),
-    wide: true
-  }, /*#__PURE__*/React.createElement(AllocationForm, {
-    country: "GLOBAL",
-    products: products,
-    existing: allocs["GLOBAL"] || [],
-    raffles: raffles || [],
-    raffleCountries: {},
-    setRaffleCountries: () => {},
-    onSave: rows => { setAllocs(a => ({ ...a, GLOBAL: rows })); setGlobalModal(false); },
-    onClose: () => setGlobalModal(false)
-  })), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       gap: 0,
@@ -2820,7 +2800,7 @@ function ProductsTab({
     initial: modal === "add" ? null : modal,
     onSave: save,
     onClose: () => setModal(null)
-  }))), " ", subView === "raffles" && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  })), globalAllocRows.length > 0 && /*#__PURE__*/React.createElement("div", { style: { marginTop: 28, paddingTop: 20, borderTop: "1px solid #1a1a1a" } }, /*#__PURE__*/React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10, marginBottom: 14 } }, /*#__PURE__*/React.createElement("span", { style: { fontWeight: 800, color: "#38bdf8", background: "rgba(56,189,248,0.1)", border: "1px solid rgba(56,189,248,0.3)", padding: "2px 10px", borderRadius: 4, fontSize: 11, letterSpacing: "0.05em" } }, "GLOBAL"), /*#__PURE__*/React.createElement("span", { style: { fontSize: 13, color: "#444" } }, globalAllocRows.filter(r => r.active !== false && products.find(p => p.id === r.productId)).length, " products")), /*#__PURE__*/React.createElement("div", { style: { background: "#0d0d0d", border: "1px solid #1a1a1a", borderRadius: 12, overflow: "hidden" } }, /*#__PURE__*/React.createElement("div", { style: { overflowX: "auto" } }, /*#__PURE__*/React.createElement("table", { style: { width: "100%", borderCollapse: "collapse", fontSize: 13 } }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", { style: { borderBottom: "1px solid #1a1a1a" } }, [TH("Brand"), TH("Category"), TH("Local Price"), TH("USD Price"), TH("Provider"), TH("Type"), TH("Demand"), TH("BP Regular"), TH("BP Premium"), TH("Disc."), TH("GLOBAL", "#38bdf8")])), /*#__PURE__*/React.createElement("tbody", null, globalAllocRows.map(r => { const p = products.find(x => x.id === r.productId); if (!p) return null; const { reg, prem } = calcPricesAfterDiscount(p); return /*#__PURE__*/React.createElement("tr", { key: r.productId, style: { borderBottom: "1px solid #111", opacity: r.active === false ? 0.35 : 1 } }, /*#__PURE__*/React.createElement("td", { style: { padding: "14px 16px", fontWeight: 800, color: "#f1f5f9" } }, p.brand), /*#__PURE__*/React.createElement("td", { style: { padding: "10px 12px" } }, /*#__PURE__*/React.createElement(Badge, { variant: p.category.toLowerCase() }, p.category)), /*#__PURE__*/React.createElement("td", { style: { padding: "10px 12px", fontWeight: 700, color: "#f1f5f9" } }, p.priceToBuffLocal, " ", /*#__PURE__*/React.createElement("span", { style: { fontSize: 10, color: "#555", fontWeight: 600 } }, p.currency || "USD")), /*#__PURE__*/React.createElement("td", { style: { padding: "10px 12px", fontWeight: 700, color: "#f1f5f9" } }, usd(calcPriceUSD(p))), /*#__PURE__*/React.createElement("td", { style: { padding: "10px 12px" } }, /*#__PURE__*/React.createElement(Badge, { variant: p.provider.toLowerCase() }, p.provider)), /*#__PURE__*/React.createElement("td", { style: { padding: "10px 12px" } }, /*#__PURE__*/React.createElement(Badge, { variant: p.type.toLowerCase() }, p.type)), /*#__PURE__*/React.createElement("td", { style: { padding: "10px 12px" } }, /*#__PURE__*/React.createElement("span", { style: { fontSize: 10, fontWeight: 700, color: demandColor(p.demandLevel), background: demandBg(p.demandLevel), padding: "2px 7px", borderRadius: 4, border: `1px solid ${demandColor(p.demandLevel)}33` } }, p.demandLevel)), /*#__PURE__*/React.createElement("td", { style: { padding: "10px 12px", color: "#555" } }, num(p.bpRegular)), /*#__PURE__*/React.createElement("td", { style: { padding: "10px 12px", color: "#555" } }, p.bpPremium ? num(p.bpPremium) : "\u2014"), /*#__PURE__*/React.createElement("td", { style: { padding: "10px 12px", color: "#fb923c", fontWeight: 700 } }, p.discountPct, "%"), /*#__PURE__*/React.createElement("td", { style: { padding: "10px 16px" } }, /*#__PURE__*/React.createElement("span", { style: { fontSize: 10, fontWeight: 700, color: "#38bdf8", background: "rgba(56,189,248,0.1)", border: "1px solid rgba(56,189,248,0.3)", padding: "2px 6px", borderRadius: 4 } }, "GLOBAL"))); }))))))), " ", subView === "raffles" && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       justifyContent: "space-between",
@@ -3018,7 +2998,11 @@ function CountriesTab({
       realM: real * 30.5
     };
   });
-  const sel = selected ? countryData.find(c => c.country === selected) : null;
+  const gRows = allocs["GLOBAL"] || [];
+  const gPlanned = gRows.reduce((s, r) => { const p = products.find(x => x.id === r.productId); return s + (p && r.active !== false ? calcDailyBudget(p, r) : 0); }, 0);
+  const gReal = gRows.reduce((s, r) => { const p = products.find(x => x.id === r.productId); return s + (p && r.active !== false ? calcRealDaily(p, r) : 0); }, 0);
+  const globalData = { country: "GLOBAL", rows: gRows, validCount: gRows.filter(r => products.find(x => x.id === r.productId)).length, planned: gPlanned, real: gReal, plannedM: gPlanned * 30.5, realM: gReal * 30.5 };
+  const sel = selected ? (selected === "GLOBAL" ? globalData : countryData.find(c => c.country === selected)) : null;
   function delAlloc(pid) {
     setAllocs(a => ({
       ...a,
@@ -3148,7 +3132,7 @@ function CountriesTab({
       fontWeight: 800,
       color: G
     }
-  }, usd(c.real), "/d"))), addingCountry ? /*#__PURE__*/React.createElement("div", {
+  }, usd(c.real), "/d"))), /*#__PURE__*/React.createElement("div", { onClick: () => setSelected("GLOBAL"), style: { padding: "11px 14px", cursor: "pointer", borderTop: "2px solid #1a1a1a", background: selected === "GLOBAL" ? "rgba(56,189,248,0.05)" : "transparent", display: "flex", alignItems: "center", justifyContent: "space-between" } }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", { style: { fontWeight: 800, color: "#38bdf8", background: "rgba(56,189,248,0.1)", border: "1px solid rgba(56,189,248,0.3)", padding: "2px 8px", borderRadius: 4, fontSize: 11, letterSpacing: "0.05em" } }, "GLOBAL"), globalData.validCount > 0 && /*#__PURE__*/React.createElement("div", { style: { fontSize: 10, color: "#444", marginTop: 1 } }, globalData.validCount, " products")), globalData.validCount > 0 && /*#__PURE__*/React.createElement("div", { style: { fontSize: 10, fontWeight: 800, color: "#38bdf8" } }, usd(globalData.real), "/d")), addingCountry ? /*#__PURE__*/React.createElement("div", {
     style: {
       padding: "8px 10px",
       borderTop: "1px solid #1a1a1a",
