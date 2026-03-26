@@ -35,7 +35,7 @@ const CATEGORIES = ["Gaming", "Shopping", "Entertainment", "Charity", "Other"];
 const PROVIDERS = ["GCOW", "Loot Keys", "Kinguin", "Internal", "Other"];
 const TYPES = ["Regular", "Premium"];
 const DEMAND_LEVELS = ["Low", "Medium", "High", "Very High"];
-const FX = {
+let FX = {
   USD: 1,
   EUR: 1.17,
   GBP: 1.34,
@@ -7940,10 +7940,102 @@ function DashboardTab({
   }, "Fetch Real Data"), " to load actual spend from Redash")));
 }
 
+// ── FX RATES PANEL ───────────────────────────────────────────────────────────────
+function FXRatesPanel({ fxRates, setFxRates }) {
+  const [status, setStatus] = useState("idle");
+  const [lastUpdated, setLastUpdated] = useState(() => localStorage.getItem("buff_fxUpdated") || null);
+  const [editVals, setEditVals] = useState(() =>
+    Object.fromEntries(Object.entries(fxRates).map(([k, v]) => [k, String(v)]))
+  );
+  useEffect(() => {
+    setEditVals(Object.fromEntries(Object.entries(fxRates).map(([k, v]) => [k, String(v)])));
+  }, [fxRates]);
+  function refresh() {
+    setStatus("loading");
+    fetch("https://open.er-api.com/v6/latest/USD")
+      .then(r => r.json())
+      .then(data => {
+        if (!data.rates) throw new Error("no rates");
+        const updated = {};
+        Object.keys(fxRates).forEach(cur => {
+          if (cur === "USD") { updated.USD = 1; return; }
+          if (data.rates[cur]) updated[cur] = Math.round((1 / data.rates[cur]) * 1e6) / 1e6;
+        });
+        setFxRates(p => ({ ...p, ...updated }));
+        const ts = new Date().toLocaleString();
+        setLastUpdated(ts);
+        localStorage.setItem("buff_fxUpdated", ts);
+        setStatus("done");
+        setTimeout(() => setStatus("idle"), 3000);
+      })
+      .catch(() => { setStatus("error"); setTimeout(() => setStatus("idle"), 3000); });
+  }
+  function handleBlur(cur) {
+    const v = parseFloat(editVals[cur]);
+    if (!isNaN(v) && v > 0) setFxRates(p => ({ ...p, [cur]: v }));
+    else setEditVals(p => ({ ...p, [cur]: String(fxRates[cur]) }));
+  }
+  const inpS = { background: "#111", border: "1px solid #2a2a2a", borderRadius: 6, color: "#f1f5f9", fontSize: 12, padding: "6px 10px", outline: "none", fontFamily: "inherit", width: 160 };
+  return React.createElement("div", { style: { marginTop: 40, paddingTop: 32, borderTop: "1px solid #1a1a1a" } },
+    React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 } },
+      React.createElement("div", null,
+        React.createElement("div", { style: { fontSize: 20, fontWeight: 900, color: "#f1f5f9", marginBottom: 4 } }, "FX Rates"),
+        React.createElement("div", { style: { fontSize: 12, color: "#555" } },
+          lastUpdated ? "Last updated: " + lastUpdated : "Using default rates — click Refresh to fetch live rates."
+        )
+      ),
+      React.createElement("button", {
+        onClick: refresh,
+        disabled: status === "loading",
+        style: {
+          background: status === "done" ? "rgba(74,222,128,0.1)" : status === "error" ? "rgba(239,68,68,0.1)" : "#1a1a1a",
+          border: "1px solid " + (status === "done" ? "#4ade80" : status === "error" ? "#ef4444" : "#2a2a2a"),
+          color: status === "done" ? "#4ade80" : status === "error" ? "#ef4444" : status === "loading" ? "#555" : G,
+          borderRadius: 8, padding: "10px 20px", fontSize: 12, fontWeight: 800,
+          cursor: status === "loading" ? "not-allowed" : "pointer", fontFamily: "inherit"
+        }
+      }, status === "loading" ? "Fetching..." : status === "done" ? "Updated!" : status === "error" ? "Error" : "\u27F3 Refresh Rates")
+    ),
+    React.createElement("div", { style: { background: "#0d0d0d", border: "1px solid #1a1a1a", borderRadius: 14, overflow: "hidden" } },
+      React.createElement("table", { style: { width: "100%", borderCollapse: "collapse", fontSize: 12 } },
+        React.createElement("thead", null,
+          React.createElement("tr", { style: { borderBottom: "1px solid #1a1a1a" } },
+            ["Currency", "Rate (1 unit \u2192 USD)", "Inverse (1 USD = ?)"].map((h, i) =>
+              React.createElement("th", { key: i, style: { textAlign: "left", padding: "11px 16px", color: "#444", fontWeight: 700, fontSize: 11, letterSpacing: "0.05em", textTransform: "uppercase" } }, h)
+            )
+          )
+        ),
+        React.createElement("tbody", null,
+          Object.entries(fxRates).map(([cur, rate]) =>
+            React.createElement("tr", { key: cur, style: { borderBottom: "1px solid #111" } },
+              React.createElement("td", { style: { padding: "11px 16px", fontWeight: 800, color: "#f1f5f9" } }, cur),
+              React.createElement("td", { style: { padding: "8px 16px" } },
+                cur === "USD"
+                  ? React.createElement("span", { style: { color: "#555", fontSize: 12 } }, "1.000000 (base)")
+                  : React.createElement("input", {
+                      value: editVals[cur] !== undefined ? editVals[cur] : "",
+                      onChange: e => setEditVals(p => ({ ...p, [cur]: e.target.value })),
+                      onBlur: () => handleBlur(cur),
+                      style: inpS
+                    })
+              ),
+              React.createElement("td", { style: { padding: "11px 16px", color: "#555", fontSize: 11 } },
+                cur !== "USD" && rate > 0 ? ("1 USD = " + (1 / rate).toFixed(4) + " " + cur) : ""
+              )
+            )
+          )
+        )
+      )
+    )
+  );
+}
+
 // ── ADMIN TAB ────────────────────────────────────────────────────────────────────
 function AdminTab({
   appUsers,
-  setAppUsers
+  setAppUsers,
+  fxRates,
+  setFxRates
 }) {
   const BLANK = {
     firstName: "",
@@ -8438,7 +8530,7 @@ function AdminTab({
       fontFamily: "inherit",
       opacity: form.email && form.username ? 1 : 0.4
     }
-  }, "Save")))));
+  }, "Save")))), React.createElement(FXRatesPanel, { fxRates: fxRates, setFxRates: setFxRates }));
 }
 
 // ── BUDGET CONSTANTS ────────────────────────────────────────────────────────────
@@ -12299,6 +12391,16 @@ function App() {
   useEffect(() => {
     localStorage.setItem("buff_appUsers", JSON.stringify(appUsers));
   }, [appUsers]);
+  const [fxRates, setFxRates] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("buff_fxRates"));
+      return saved ? { ...FX, ...saved } : { ...FX };
+    } catch { return { ...FX }; }
+  });
+  useEffect(() => {
+    Object.assign(FX, fxRates);
+    localStorage.setItem("buff_fxRates", JSON.stringify(fxRates));
+  }, [fxRates]);
 
   // Pre-auth: silently load appUsers from Sheets in background
   useEffect(() => {
@@ -12905,7 +13007,9 @@ function App() {
     setVsActualStatus: setVsActualStatus
   }), tab === "admin" && isAdmin && /*#__PURE__*/React.createElement(AdminTab, {
     appUsers: appUsers,
-    setAppUsers: setAppUsers
+    setAppUsers: setAppUsers,
+    fxRates: fxRates,
+    setFxRates: setFxRates
   })));
 }
 
