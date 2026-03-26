@@ -2311,6 +2311,7 @@ function ProductsTab({
     }
   }, s);
   const globalAllocRows = allocs["GLOBAL"] || [];
+  const globalProductIds = new Set(globalAllocRows.map(r => r.productId));
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
@@ -2641,7 +2642,7 @@ function ProductsTab({
     style: {
       borderBottom: "1px solid #1a1a1a"
     }
-  }, [TH("Brand"), TH("Category"), TH("Local Price"), TH("USD Price"), TH("Provider"), TH("Type"), TH("Demand"), TH("BP Regular"), TH("BP Premium"), TH("Disc."), TH("Countries", "#c8ff00"), TH("")])), /*#__PURE__*/React.createElement("tbody", null, filtered.map(p => {
+  }, [TH("Brand"), TH("Category"), TH("Local Price"), TH("USD Price"), TH("Provider"), TH("Type"), TH("Demand"), TH("BP Regular"), TH("BP Premium"), TH("Disc."), TH("Countries", "#c8ff00"), TH("")])), /*#__PURE__*/React.createElement("tbody", null, filtered.filter(p => !globalProductIds.has(p.id)).map(p => {
     const {
       reg,
       prem
